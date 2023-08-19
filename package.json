@@ -1,7 +1,7 @@
 {
-  "name": "withdrawbinance",
+  "name": "binance-actions",
   "version": "1.0.0",
-  "description": "withdraw from binance to multiply accounts",
+  "description": "binance-actions",
   "main": "index.ts",
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moongue/binanceWithdraw.git"
+    "url": "git+https://github.com/moongue/binance-actions.git"
   },
   "keywords": [
     "widthdraw",
@@ -19,9 +19,9 @@
   "author": "moongue",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/moongue/binanceWithdraw/issues"
+    "url": "https://github.com/moongue/binance-actions/issues"
   },
-  "homepage": "https://github.com/moongue/binanceWithdraw#readme",
+  "homepage": "https://github.com/moongue/binance-actions#readme",
   "devDependencies": {
     "@types/inquirer": "^9.0.3",
     "@types/node": "^20.5.1",
@@ -36,6 +36,8 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "binance": "^2.8.9",
+    "dotenv": "^16.3.1",
     "inquirer": "^9.2.10"
   }
 }
