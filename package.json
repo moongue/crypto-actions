@@ -1,0 +1,36 @@
+{
+  "name": "withdrawbinance",
+  "version": "1.0.0",
+  "description": "withdraw from binance to multiply accounts",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "rimraf build && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moongue/binanceWithdraw.git"
+  },
+  "keywords": [
+    "widthdraw",
+    "binance"
+  ],
+  "author": "moongue",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/moongue/binanceWithdraw/issues"
+  },
+  "homepage": "https://github.com/moongue/binanceWithdraw#readme",
+  "devDependencies": {
+    "@types/node": "^20.5.1",
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/parser": "^6.4.0",
+    "eslint": "^8.47.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "nodemon": "^3.0.1",
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}
