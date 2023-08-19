@@ -12,10 +12,8 @@ module.exports = {
   },
   rules: {
     'no-var': 'error',
-    semi: 'error',
-    indent: ['error', 2, { SwitchCase: 1 }],
+    semi: ['error', 'always'],
     'no-trailing-spaces': 'error',
-    quotes: ['error', 'single'],
     'no-multi-spaces': 'error',
     'space-in-parens': 'error',
     'no-multiple-empty-lines': 'error',
