@@ -1,4 +1,3 @@
-// import binanceClient from '../binanceClient/index.js';
 import sleep from '../utils/sleep.ts';
 import randomValueInDiapason from '../utils/randomValueInDiapason.ts';
 import binanceClient from '../binanceClient/index.ts';
@@ -35,14 +34,18 @@ const processWithdraw = async (withdraw: WithdrawType) => {
     amount = Number(withdraw.amount);
   }
 
+  let hash: string;
+
   try {
-    await binanceClient.withdraw({
+    const { id } = await binanceClient.withdraw({
       coin: withdraw.coin,
       network: withdraw.network,
       address: withdraw.address,
       amount: amount,
     });
+    hash = id;
   } catch (e) {
+    console.error('Error while withdraw', e);
     return {
       ...withdraw,
       amount,
@@ -53,7 +56,7 @@ const processWithdraw = async (withdraw: WithdrawType) => {
   return {
     ...withdraw,
     amount,
-    transactionHash: '0xgfd523',
+    transactionHash: hash,
     state: 'success',
   } as CompletedWithdrawType;
 };

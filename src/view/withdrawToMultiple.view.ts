@@ -152,4 +152,7 @@ export const withdrawToMultipleView = async () => {
   }));
 
   await withdrawToMultipleController(drawCliPrettyWithdrawInterface)(withdrawsStates, intervalInMs);
+
+  console.log('All withdraws completed');
+  process.exit(0);
 };
