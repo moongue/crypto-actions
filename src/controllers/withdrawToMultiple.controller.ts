@@ -1,75 +1,76 @@
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-import path from 'path';
-import { fileWithAddressesParser } from '../parsers/index.ts';
-import sleep from '../utils/sleep.js';
+// import binanceClient from '../binanceClient/index.js';
+import sleep from '../utils/sleep.ts';
+import randomValueInDiapason from '../utils/randomValueInDiapason.ts';
+import binanceClient from '../binanceClient/index.ts';
 
-type WithdrawState = {
+export type WithdrawType = {
   address: string;
+  network: string;
+  coin: string;
+  amount: string | `${number}-${number}`;
   state: 'pending' | 'success' | 'failed' | 'waiting';
+  transactionHash?: string;
 };
 
-const styles = {
-  pending: (str: string) => chalk.yellow(str),
-  success: (str: string) => chalk.green(str),
-  failed: (str: string) => chalk.red(str),
-  waiting: (str: string) => chalk.blue(str),
-};
+export type CompletedWithdrawType = WithdrawType &
+  (
+    | {
+        state: 'failed';
+        amount: number;
+      }
+    | {
+        state: 'success';
+        amount: number;
+        transactionHash: string;
+      }
+  );
 
-const drawCliPrettyInterface = (withdraws: WithdrawState[]) => {
-  process.stdout.cursorTo(0);
-  process.stdout.write('\x1Bc');
+const processWithdraw = async (withdraw: WithdrawType) => {
+  const diapason = withdraw.amount.split('-');
+  let amount: number;
 
-  process.stdout.write(`
-${withdraws.map((withdraw, idx) => `${idx + 1}: ${withdraw.address} - ${styles[withdraw.state](withdraw.state)} \n`).join('')}
-  `);
-};
+  if (diapason.length === 2) {
+    amount = randomValueInDiapason(Number(diapason[0]), Number(diapason[1]));
+  } else {
+    amount = Number(withdraw.amount);
+  }
 
-const processWithdraw = async (withdraw: WithdrawState) => {
+  try {
+    await binanceClient.withdraw({
+      coin: withdraw.coin,
+      network: withdraw.network,
+      address: withdraw.address,
+      amount: amount,
+    });
+  } catch (e) {
+    return {
+      ...withdraw,
+      amount,
+      state: 'failed',
+    } as CompletedWithdrawType;
+  }
+
   return {
     ...withdraw,
+    amount,
+    transactionHash: '0xgfd523',
     state: 'success',
-  } as const;
+  } as CompletedWithdrawType;
 };
 
-export default async function withdrawToMultipleController() {
-  const csvFile: { path: string } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'path',
-      message: 'Enter path to csv file with withdraw addresses:',
-    },
-  ]);
-  const fullPath = path.join(process.cwd(), csvFile.path);
+export const withdrawToMultipleController =
+  (view: (args: Array<WithdrawType | CompletedWithdrawType>) => void) => async (withdraws: WithdrawType[], interval: number) => {
+    for (let index = 0; index < withdraws.length; index++) {
+      withdraws[index] = await processWithdraw(withdraws[index]);
 
-  const records = fileWithAddressesParser(fullPath);
+      if (index + 1 < withdraws.length) {
+        withdraws[index + 1] = {
+          ...withdraws[index + 1],
+          state: 'waiting',
+        };
+      }
 
-  const interval: { interval: string } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'interval',
-      message: 'Enter interval between withdraws in seconds:',
-    },
-  ]);
-
-  const intervalInMs = Number(interval.interval) * 1000;
-
-  const withdrawsStates: WithdrawState[] = records.map((record) => ({
-    address: record,
-    state: 'pending',
-  }));
-
-  for (let index = 0; index < withdrawsStates.length; index++) {
-    withdrawsStates[index] = await processWithdraw(withdrawsStates[index]);
-
-    if (index + 1 < withdrawsStates.length) {
-      withdrawsStates[index + 1] = {
-        ...withdrawsStates[index + 1],
-        state: 'waiting',
-      };
+      view(withdraws);
+      await sleep(interval);
     }
-
-    drawCliPrettyInterface(withdrawsStates);
-    await sleep(intervalInMs);
-  }
-}
+  };

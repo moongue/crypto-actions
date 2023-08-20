@@ -1,10 +1,10 @@
 import inquirer from 'inquirer';
-import controllerMapper from './controllers/index.js';
+import { views } from './view/index.ts';
 
-const choices = Object.keys(controllerMapper);
+const choices = Object.keys(views);
 
 async function main() {
-  const answer: { selectedAction: keyof typeof controllerMapper } = await inquirer.prompt([
+  const answer: { selectedAction: keyof typeof views } = await inquirer.prompt([
     {
       type: 'list',
       name: 'selectedAction',
@@ -13,9 +13,9 @@ async function main() {
     },
   ]);
 
-  const controller = controllerMapper[answer.selectedAction];
+  const view = views[answer.selectedAction];
 
-  await controller();
+  await view();
 }
 
 main();

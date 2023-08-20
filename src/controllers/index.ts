@@ -1,5 +1,5 @@
-import withdrawToMultipleController from './withdrawToMultiple.controller.js';
+import { withdrawToMultipleController } from './withdrawToMultiple.controller.js';
 
 export default {
-  'Withdraw to multiple addresses': withdrawToMultipleController,
+  withdrawToMultipleController,
 };
