@@ -1,6 +1,6 @@
 import sleep from '../utils/sleep.ts';
 import randomValueInDiapason from '../utils/randomValueInDiapason.ts';
-import binanceClient from '../binanceClient/index.ts';
+import { clients, ClientsInterfacesType, ClientsType } from '../clients/index.ts';
 
 export type WithdrawType = {
   address: string;
@@ -24,7 +24,7 @@ export type CompletedWithdrawType = WithdrawType &
       }
   );
 
-const processWithdraw = async (withdraw: WithdrawType) => {
+const processWithdraw = async (withdraw: WithdrawType, client: ClientsInterfacesType) => {
   const diapason = withdraw.amount.split('-');
   let amount: number;
 
@@ -37,7 +37,7 @@ const processWithdraw = async (withdraw: WithdrawType) => {
   let hash: string;
 
   try {
-    const { id } = await binanceClient.withdraw({
+    const { id } = await client.withdraw({
       coin: withdraw.coin,
       network: withdraw.network,
       address: withdraw.address,
@@ -62,9 +62,10 @@ const processWithdraw = async (withdraw: WithdrawType) => {
 };
 
 export const withdrawToMultipleController =
-  (view: (args: Array<WithdrawType | CompletedWithdrawType>) => void) => async (withdraws: WithdrawType[], interval: number) => {
+  (view: (args: Array<WithdrawType | CompletedWithdrawType>) => void) => async (withdraws: WithdrawType[], client: ClientsType, interval: number) => {
+    const withdrawClient = clients[client];
     for (let index = 0; index < withdraws.length; index++) {
-      withdraws[index] = await processWithdraw(withdraws[index]);
+      withdraws[index] = await processWithdraw(withdraws[index], withdrawClient);
 
       if (index + 1 < withdraws.length) {
         withdraws[index + 1] = {

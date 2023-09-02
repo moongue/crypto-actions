@@ -19,5 +19,6 @@ module.exports = {
     'no-multiple-empty-lines': 'error',
     'prefer-const': 'error',
     'prettier/prettier': ['error'],
+    '@typescript-eslint/no-explicit-any': 'off'
   },
 };

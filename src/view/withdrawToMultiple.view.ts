@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 import fs from 'fs';
 import path from 'path';
+import { clients, ClientsType } from '../clients/index.ts';
 import { fileWithAddressesParser } from '../parsers/index.ts';
 import { WithdrawType, withdrawToMultipleController, CompletedWithdrawType } from '../controllers/withdrawToMultiple.controller.ts';
 import chalk from 'chalk';
@@ -29,6 +30,7 @@ ${withdraws
 };
 
 export const withdrawToMultipleView = async () => {
+  let client: ClientsType;
   let filePath: string;
   let interval: number;
   let coin: string;
@@ -37,6 +39,16 @@ export const withdrawToMultipleView = async () => {
   let isConfirmed = false;
 
   do {
+    const { clientAnswer }: { clientAnswer: ClientsType } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'clientAnswer',
+        message: 'Select client:',
+        choices: Object.keys(clients),
+      },
+    ]);
+    client = clientAnswer;
+
     const { filePathAnswer }: { filePathAnswer: string } = await inquirer.prompt([
       {
         type: 'input',
@@ -151,7 +163,7 @@ export const withdrawToMultipleView = async () => {
     state: 'pending',
   }));
 
-  await withdrawToMultipleController(drawCliPrettyWithdrawInterface)(withdrawsStates, intervalInMs);
+  await withdrawToMultipleController(drawCliPrettyWithdrawInterface)(withdrawsStates, client, intervalInMs);
 
   console.log('All withdraws completed');
   process.exit(0);
