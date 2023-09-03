@@ -75,6 +75,9 @@ export const withdrawToMultipleController =
       }
 
       view(withdraws);
+      if (index + 1 === withdraws.length) {
+        break;
+      }
       await sleep(interval);
     }
   };
