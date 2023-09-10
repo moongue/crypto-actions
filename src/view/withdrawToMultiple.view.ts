@@ -1,10 +1,9 @@
-import inquirer from 'inquirer';
-import fs from 'fs';
 import path from 'path';
+import chalk from 'chalk';
 import { clients, ClientsType } from '../clients/index.ts';
 import { fileWithAddressesParser } from '../parsers/index.ts';
 import { WithdrawType, withdrawToMultipleController, CompletedWithdrawType } from '../controllers/withdrawToMultiple.controller.ts';
-import chalk from 'chalk';
+import { questions } from '../questions.ts';
 
 const styles = {
   pending: (str: string) => chalk.yellow(str),
@@ -39,118 +38,22 @@ export const withdrawToMultipleView = async () => {
   let isConfirmed = false;
 
   do {
-    const { clientAnswer }: { clientAnswer: ClientsType } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'clientAnswer',
-        message: 'Select client:',
-        choices: Object.keys(clients),
-      },
-    ]);
-    client = clientAnswer;
+    client = await questions.list.client();
+
+    console.log('salam', client);
 
     if (!clients[client].isReady) {
       throw new Error('Client is not ready, please check your .env file');
     }
 
-    const { filePathAnswer }: { filePathAnswer: string } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'filePathAnswer',
-        message: 'Enter path to csv file with withdraw addresses:',
-        validate: (value) => {
-          if (!value) {
-            return 'Path is required';
-          }
-          if (!fs.statSync(value).isFile()) {
-            return 'Path must be a file';
-          }
-          return true;
-        },
-      },
-    ]);
-    filePath = filePathAnswer;
-
-    const { intervalAnswer }: { intervalAnswer: string } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'intervalAnswer',
-        message: 'Enter interval between withdraws in seconds:',
-        validate: (value) => {
-          if (Number.isNaN(Number(value))) {
-            return 'Interval must be a number';
-          }
-          return true;
-        },
-      },
-    ]);
-    interval = Number(intervalAnswer);
-
-    const { coinAnswer }: { coinAnswer: string } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'coinAnswer',
-        message: 'Enter coin ticker:',
-        validate: (value) => {
-          if (!value) {
-            return 'Coin ticker is required';
-          }
-          return true;
-        },
-      },
-    ]);
-    coin = coinAnswer;
-
-    const { networkAnswer }: { networkAnswer: string } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'networkAnswer',
-        message: 'Enter network:',
-        validate: (value) => {
-          if (!value) {
-            return 'Network is required';
-          }
-          return true;
-        },
-      },
-    ]);
-    network = networkAnswer;
-
-    const { amountAnswer }: { amountAnswer: string } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'amountAnswer',
-        message:
-          'You can enter range of amounts in format: 0.1-0.5 and script will generate random amount in this range for each withdraw. Enter amount:',
-        validate: (value) => {
-          if (!value) {
-            return 'Amount is required';
-          }
-          if (value.split('-').length === 2) {
-            const diapason = value.split('-');
-            if (Number.isNaN(Number(diapason[0])) || Number.isNaN(Number(diapason[1]))) {
-              return 'Interval must be a number or diapason';
-            }
-            return true;
-          }
-
-          if (Number.isNaN(Number(value))) {
-            return 'Interval must be a number or diapason';
-          }
-          return true;
-        },
-      },
-    ]);
-    amount = amountAnswer;
-
-    const { isConfirmedAnswer }: { isConfirmedAnswer: boolean } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'isConfirmedAnswer',
-        message: `Check your data: \nPath to csv file with withdraw addresses: ${filePath} \nInterval between withdraws in seconds: ${interval} \nCoin ticker: ${coin} \nNetwork: ${network} \nAmount: ${amount} \n`,
-      },
-    ]);
-    isConfirmed = isConfirmedAnswer;
+    filePath = await questions.input.filePath();
+    interval = Number(await questions.input.interval());
+    coin = await questions.input.coin();
+    network = await questions.input.network();
+    amount = await questions.input.amount();
+    isConfirmed = await questions.input.isConfirmed(
+      `Check your data: \nPath to csv file with withdraw addresses: ${filePath} \nInterval between withdraws in seconds: ${interval} \nCoin ticker: ${coin} \nNetwork: ${network} \nAmount: ${amount} \n`,
+    );
   } while (!isConfirmed);
 
   const fullPath = path.join(process.cwd(), filePath);
