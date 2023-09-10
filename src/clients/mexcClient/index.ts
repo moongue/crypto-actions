@@ -1,7 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import * as querystring from 'querystring';
 import * as crypto from 'crypto';
 import { removeEmptyValue } from '../../utils/removeEmptyValue.ts';
 import { makeRequest } from '../../utils/makeRequest.ts';
+import { WithdrawType } from '../../types/clients.ts';
 
 class MexcClient {
   constructor(public options: { apiKey: string; apiSecret: string; baseURL?: string }) {
@@ -38,7 +42,7 @@ class MexcClient {
     });
   }
 
-  async withdraw(params: { coin: string; network: string; address: string; amount: number }) {
+  async withdraw(params: WithdrawType) {
     const {
       data: { id },
     } = await this.privateRequest('post', '/capital/withdraw/apply', params);
@@ -48,6 +52,7 @@ class MexcClient {
     };
   }
 }
+
 export const mexcClient = new MexcClient({
   apiKey: process.env.MEXC_API_KEY || 'xxx',
   apiSecret: process.env.MEXC_SECRET_KEY || 'xxx',
