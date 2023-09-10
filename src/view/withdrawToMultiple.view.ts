@@ -49,6 +49,10 @@ export const withdrawToMultipleView = async () => {
     ]);
     client = clientAnswer;
 
+    if (!clients[client].isReady) {
+      throw new Error('Client is not ready, please check your .env file');
+    }
+
     const { filePathAnswer }: { filePathAnswer: string } = await inquirer.prompt([
       {
         type: 'input',

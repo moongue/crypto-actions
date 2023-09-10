@@ -7,9 +7,14 @@ import { removeEmptyValue } from '../../utils/removeEmptyValue.ts';
 import { makeRequest } from '../../utils/makeRequest.ts';
 import { WithdrawType } from '../../types/clients.ts';
 
+const apiKey = process.env.MEXC_API_KEY as string;
+const apiSecret = process.env.MEXC_SECRET_KEY as string;
+
 class MexcClient {
+  isReady: boolean;
   constructor(public options: { apiKey: string; apiSecret: string; baseURL?: string }) {
     this.options.baseURL = 'https://api.mexc.com/api/v3';
+    this.isReady = !!this.options.apiKey && !!this.options.apiSecret;
   }
 
   async publicRequest(method: 'get' | 'post' = 'get', path: string, params: any = {}) {
@@ -54,6 +59,6 @@ class MexcClient {
 }
 
 export const mexcClient = new MexcClient({
-  apiKey: process.env.MEXC_API_KEY || 'xxx',
-  apiSecret: process.env.MEXC_SECRET_KEY || 'xxx',
+  apiKey,
+  apiSecret,
 });

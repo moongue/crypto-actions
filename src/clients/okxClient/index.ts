@@ -4,13 +4,15 @@ dotenv.config();
 import { APICredentials, RestClient } from 'okx-api';
 import { WithdrawType } from '../../types/clients.ts';
 
-const OKX_API_KEY = process.env.OKX_API_KEY || 'xxx';
-const OKX_SECRET_KEY = process.env.OKX_SECRET_KEY || 'xxx';
-const API_PASS = process.env.OKX_API_PASS || 'xxx';
+const OKX_API_KEY = process.env.OKX_API_KEY as string;
+const OKX_SECRET_KEY = process.env.OKX_SECRET_KEY as string;
+const API_PASS = process.env.OKX_API_PASS as string;
 
 class OkxClient extends RestClient {
-  constructor(public credentials: APICredentials | null) {
+  isReady: boolean;
+  constructor(public credentials: APICredentials) {
     super(credentials);
+    this.isReady = !!credentials.apiPass && !!credentials.apiKey && !!credentials.apiSecret;
   }
 
   async withdraw(params: WithdrawType) {
