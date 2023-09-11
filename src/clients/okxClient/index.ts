@@ -7,6 +7,7 @@ import { WithdrawType } from '../../types/clients.ts';
 const OKX_API_KEY = process.env.OKX_API_KEY as string;
 const OKX_SECRET_KEY = process.env.OKX_SECRET_KEY as string;
 const API_PASS = process.env.OKX_API_PASS as string;
+const ON_CHAIN_DEST = '4';
 
 class OkxClient extends RestClient {
   isReady: boolean;
@@ -23,7 +24,7 @@ class OkxClient extends RestClient {
       const currencies = await this.getCurrencies(coin);
       fee = currencies.find((currency) => currency.chain === `${coin.toUpperCase()}-${network.toUpperCase()}`)?.minFee;
     } catch (e) {
-      console.error('Unable to get fee: ', e);
+      throw new Error(`Unable to get fee: ${e}`);
     }
 
     if (!fee) {
@@ -33,10 +34,10 @@ class OkxClient extends RestClient {
     const response = await super.submitWithdraw({
       ccy: coin,
       amt: String(amount),
-      dest: '4',
+      dest: ON_CHAIN_DEST,
       toAddr: address,
       chain: network,
-      fee: '0',
+      fee,
     });
 
     return {
