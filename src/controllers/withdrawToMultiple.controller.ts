@@ -2,23 +2,30 @@ import sleep from '../utils/sleep.ts';
 import randomValueInDiapason from '../utils/randomValueInDiapason.ts';
 import { clients, ClientsInterfacesType, ClientsType } from '../clients/index.ts';
 
+export const WithdrawStates = {
+  pending: 'pending',
+  success: 'success',
+  failed: 'failed',
+  waiting: 'waiting',
+} as const;
+
 export type WithdrawType = {
   address: string;
   network: string;
   coin: string;
   amount: string | `${number}-${number}`;
-  state: 'pending' | 'success' | 'failed' | 'waiting';
+  state: (typeof WithdrawStates)[keyof typeof WithdrawStates];
   transactionHash?: string;
 };
 
-export type CompletedWithdrawType = WithdrawType &
+export type CompletedWithdrawType = Omit<WithdrawType, 'amount' | 'state'> &
   (
     | {
-        state: 'failed';
+        state: typeof WithdrawStates.failed;
         amount: number;
       }
     | {
-        state: 'success';
+        state: typeof WithdrawStates.success;
         amount: number;
         transactionHash: string;
       }
@@ -49,33 +56,35 @@ const processWithdraw = async (withdraw: WithdrawType, client: ClientsInterfaces
     return {
       ...withdraw,
       amount,
-      state: 'failed',
-    } as CompletedWithdrawType;
+      state: WithdrawStates.failed,
+    };
   }
 
   return {
     ...withdraw,
     amount,
     transactionHash: hash,
-    state: 'success',
-  } as CompletedWithdrawType;
+    state: WithdrawStates.success,
+  };
 };
 
 export const withdrawToMultipleController =
   (view: (args: Array<WithdrawType | CompletedWithdrawType>) => void) => async (withdraws: WithdrawType[], client: ClientsType, interval: number) => {
     const withdrawClient = clients[client];
-    for (let index = 0; index < withdraws.length; index++) {
-      withdraws[index] = await processWithdraw(withdraws[index], withdrawClient);
+    const copyWithdraws: Array<WithdrawType | CompletedWithdrawType> = [...withdraws];
 
-      if (index + 1 < withdraws.length) {
-        withdraws[index + 1] = {
-          ...withdraws[index + 1],
-          state: 'waiting',
-        };
+    for (let index = 0; index < copyWithdraws.length; index++) {
+      copyWithdraws[index] = await processWithdraw(copyWithdraws[index] as WithdrawType, withdrawClient);
+
+      if (index + 1 < copyWithdraws.length) {
+        copyWithdraws[index + 1] = {
+          ...copyWithdraws[index + 1],
+          state: WithdrawStates.waiting,
+        } as WithdrawType;
       }
 
-      view(withdraws);
-      if (index + 1 === withdraws.length) {
+      view(copyWithdraws);
+      if (index + 1 === copyWithdraws.length) {
         break;
       }
       await sleep(interval);

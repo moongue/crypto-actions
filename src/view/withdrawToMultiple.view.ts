@@ -2,7 +2,7 @@ import path from 'path';
 import chalk from 'chalk';
 import { clients, ClientsType } from '../clients/index.ts';
 import { fileWithAddressesParser } from '../parsers/index.ts';
-import { WithdrawType, withdrawToMultipleController, CompletedWithdrawType } from '../controllers/withdrawToMultiple.controller.ts';
+import { WithdrawType, withdrawToMultipleController, CompletedWithdrawType, WithdrawStates } from '../controllers/withdrawToMultiple.controller.ts';
 import { questions } from '../questions.ts';
 
 const styles = {
@@ -21,7 +21,7 @@ ${withdraws
   .map(
     (withdraw, idx) =>
       `${idx + 1}: ${withdraw.address}${
-        withdraw.state === 'success' ? ` (transaction hash: ${withdraw?.transactionHash}, amount: ${withdraw.amount})` : ''
+        withdraw.state === WithdrawStates.success ? ` (transaction hash: ${withdraw?.transactionHash}, amount: ${withdraw.amount})` : ''
       } - ${styles[withdraw.state](withdraw.state)} \n`,
   )
   .join('')}
@@ -65,7 +65,7 @@ export const withdrawToMultipleView = async () => {
     network,
     coin,
     amount,
-    state: 'pending',
+    state: WithdrawStates.pending,
   }));
 
   await withdrawToMultipleController(drawCliPrettyWithdrawInterface)(withdrawsStates, client, intervalInMs);
