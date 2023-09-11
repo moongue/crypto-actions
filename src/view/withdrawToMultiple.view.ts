@@ -40,8 +40,6 @@ export const withdrawToMultipleView = async () => {
   do {
     client = await questions.list.client();
 
-    console.log('salam', client);
-
     if (!clients[client].isReady) {
       throw new Error('Client is not ready, please check your .env file');
     }
@@ -51,7 +49,7 @@ export const withdrawToMultipleView = async () => {
     coin = await questions.input.coin();
     network = await questions.input.network();
     amount = await questions.input.amount();
-    isConfirmed = await questions.input.isConfirmed(
+    isConfirmed = await questions.confirm.isConfirmed(
       `Check your data: \nPath to csv file with withdraw addresses: ${filePath} \nInterval between withdraws in seconds: ${interval} \nCoin ticker: ${coin} \nNetwork: ${network} \nAmount: ${amount} \n`,
     );
   } while (!isConfirmed);

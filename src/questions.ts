@@ -3,6 +3,19 @@ import inquirer from 'inquirer';
 import fs from 'fs';
 
 export const questions = {
+  confirm: {
+    isConfirmed: async (message: string) => {
+      const { isConfirmed }: { isConfirmed: boolean } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'isConfirmed',
+          message,
+        },
+      ]);
+
+      return isConfirmed;
+    },
+  },
   list: {
     client: async () => {
       const { client }: { client: ClientsType } = await inquirer.prompt([
@@ -18,17 +31,6 @@ export const questions = {
     },
   },
   input: {
-    isConfirmed: async (message: string) => {
-      const { isConfirmed }: { isConfirmed: boolean } = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'isConfirmed',
-          message,
-        },
-      ]);
-
-      return isConfirmed;
-    },
     filePath: async () => {
       const { filePath }: { filePath: string } = await inquirer.prompt([
         {
