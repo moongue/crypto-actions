@@ -26,8 +26,10 @@ ___
     OKX_API_KEY={your okx api key}
     OKX_SECRET_KEY={your okx secret key}
     OKX_API_PASS={your okx api password}
+    BYBIT_API_KEY={your bybit api key}
+    BYBIT_SECRET_KEY={your bybit secret key}
     ```
-   All API configuration you can find here [Binance](https://www.binance.com/en/my/settings/api-management), [OKX](https://www.okx.com/account/my-api), [MEXC](https://www.mexc.com/user/openapi)
+   All API configuration you can find here [Binance](https://www.binance.com/en/my/settings/api-management), [OKX](https://www.okx.com/account/my-api), [MEXC](https://www.mexc.com/user/openapi), [Bybit](https://www.bybit.com/app/user/api-management)
    I highly recommend to add IP address of your computer while creating API keys.\
    How to get IP address? Run this command in terminal
    - MacOS: ```curl ifconfig.me```
